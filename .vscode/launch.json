@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:piano-tiles}",
+            "name": "Debug PianoTiles",
+            "program": "${workspaceFolder:piano-tiles}/.build/debug/PianoTiles",
+            "preLaunchTask": "swift: Build Debug PianoTiles"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:piano-tiles}",
+            "name": "Release PianoTiles",
+            "program": "${workspaceFolder:piano-tiles}/.build/release/PianoTiles",
+            "preLaunchTask": "swift: Build Release PianoTiles"
+        }
+    ]
+}
