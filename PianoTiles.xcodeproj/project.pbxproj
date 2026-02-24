@@ -16,6 +16,14 @@
 		A1000007 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000007 /* GameView.swift */; };
 		A1000008 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000008 /* MenuView.swift */; };
 		A1000009 /* TouchOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000009 /* TouchOverlay.swift */; };
+		A100000A /* MIDIParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000A /* MIDIParser.swift */; };
+		A100000B /* SongPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000B /* SongPickerView.swift */; };
+		A100000C /* fur-elise.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000C /* fur-elise.mid */; };
+		A100000D /* canon-in-d.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000D /* canon-in-d.mid */; };
+		A100000E /* moonlight-sonata.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000E /* moonlight-sonata.mid */; };
+		A100000F /* alla-turca.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000F /* alla-turca.mid */; };
+		A1000010 /* river-flows-in-you.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000010 /* river-flows-in-you.mid */; };
+		A1000011 /* tum-hi-ho.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000011 /* tum-hi-ho.mid */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +36,14 @@
 		B1000007 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		B1000008 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		B1000009 /* TouchOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchOverlay.swift; sourceTree = "<group>"; };
+		B100000A /* MIDIParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIParser.swift; sourceTree = "<group>"; };
+		B100000B /* SongPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongPickerView.swift; sourceTree = "<group>"; };
+		B100000C /* fur-elise.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "fur-elise.mid"; sourceTree = "<group>"; };
+		B100000D /* canon-in-d.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "canon-in-d.mid"; sourceTree = "<group>"; };
+		B100000E /* moonlight-sonata.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "moonlight-sonata.mid"; sourceTree = "<group>"; };
+		B100000F /* alla-turca.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "alla-turca.mid"; sourceTree = "<group>"; };
+		B1000010 /* river-flows-in-you.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "river-flows-in-you.mid"; sourceTree = "<group>"; };
+		B1000011 /* tum-hi-ho.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "tum-hi-ho.mid"; sourceTree = "<group>"; };
 		C1000001 /* PianoTiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PianoTiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -62,6 +78,9 @@
 				B1000007 /* GameView.swift */,
 				B1000008 /* MenuView.swift */,
 				B1000009 /* TouchOverlay.swift */,
+				B100000A /* MIDIParser.swift */,
+				B100000B /* SongPickerView.swift */,
+				E1000004 /* Resources */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -74,6 +93,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E1000004 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B100000C /* fur-elise.mid */,
+				B100000D /* canon-in-d.mid */,
+				B100000E /* moonlight-sonata.mid */,
+				B100000F /* alla-turca.mid */,
+				B1000010 /* river-flows-in-you.mid */,
+				B1000011 /* tum-hi-ho.mid */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -83,6 +115,7 @@
 			buildPhases = (
 				F1000002 /* Sources */,
 				D1000001 /* Frameworks */,
+				D1000002 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -121,6 +154,22 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		D1000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000C /* fur-elise.mid in Resources */,
+				A100000D /* canon-in-d.mid in Resources */,
+				A100000E /* moonlight-sonata.mid in Resources */,
+				A100000F /* alla-turca.mid in Resources */,
+				A1000010 /* river-flows-in-you.mid in Resources */,
+				A1000011 /* tum-hi-ho.mid in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		F1000002 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -135,6 +184,8 @@
 				A1000007 /* GameView.swift in Sources */,
 				A1000008 /* MenuView.swift in Sources */,
 				A1000009 /* TouchOverlay.swift in Sources */,
+				A100000A /* MIDIParser.swift in Sources */,
+				A100000B /* SongPickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

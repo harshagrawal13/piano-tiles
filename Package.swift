@@ -11,7 +11,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "PianoTiles",
-            path: "Sources"
+            path: "Sources",
+            resources: [.process("Resources")]
         )
     ]
 )
