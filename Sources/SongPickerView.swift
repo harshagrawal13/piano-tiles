@@ -23,7 +23,7 @@ struct SongPickerView: View {
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
                 }
-                .padding(.top, 24)
+                .padding(.top, 60)
                 .padding(.bottom, 20)
 
                 // Song list

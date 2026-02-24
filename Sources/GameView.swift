@@ -240,19 +240,21 @@ struct GameView: View {
             with: .color(Color.black.opacity(0.15))
         )
 
+        let countdownY = size.height * 0.45
+
         // Shadow
         context.draw(
             Text(text)
                 .font(.system(size: 72, weight: .bold, design: .rounded))
                 .foregroundColor(.black.opacity(0.15)),
-            at: CGPoint(x: size.width / 2 + 1, y: size.height / 2 + 2)
+            at: CGPoint(x: size.width / 2 + 1, y: countdownY + 2)
         )
 
         context.draw(
             Text(text)
                 .font(.system(size: 72, weight: .bold, design: .rounded))
                 .foregroundColor(.white),
-            at: CGPoint(x: size.width / 2, y: size.height / 2)
+            at: CGPoint(x: size.width / 2, y: countdownY)
         )
     }
 }
