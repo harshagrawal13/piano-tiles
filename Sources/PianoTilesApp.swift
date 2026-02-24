@@ -8,8 +8,8 @@ struct PianoTilesApp: App {
         WindowGroup {
             Group {
                 switch gameState.phase {
-                case .menu:
-                    MenuView(state: gameState)
+                case .songSelection:
+                    SongPickerView(state: gameState)
                 case .playing:
                     GameView(state: gameState)
                 case .gameOver:

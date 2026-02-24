@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum GamePhase {
-    case menu
+    case songSelection
     case playing
     case gameOver
 }
@@ -15,7 +15,9 @@ enum GameOverReason {
 @Observable
 @MainActor
 final class GameState {
-    var phase: GamePhase = .menu
+    var phase: GamePhase = .songSelection
+    let statsStore = SongStatsStore()
+    var lastSongDescriptor: SongDescriptor?
     var score: Int = 0
     var combo: Int = 0
     var maxCombo: Int = 0
@@ -40,7 +42,7 @@ final class GameState {
 
     var screenSize: CGSize = CGSize(width: 390, height: 844)
 
-    let songData: SongData = ChopinNocturne.createSongData()
+    var songData: SongData = ChopinNocturne.createSongData()
     let audioEngine = AudioEngine()
 
     var hitZoneY: CGFloat {
@@ -97,6 +99,9 @@ final class GameState {
         gameOverReason = reason
         songComplete = reason == .songComplete
         phase = .gameOver
+        if let descriptor = lastSongDescriptor {
+            statsStore.recordPlay(songID: descriptor.id, score: score)
+        }
         if reason == .songComplete {
             audioEngine.stop()
         } else {
@@ -105,7 +110,15 @@ final class GameState {
     }
 
     func returnToMenu() {
-        phase = .menu
+        phase = .songSelection
+    }
+
+    func selectSong(_ descriptor: SongDescriptor) {
+        if let data = SongCatalog.loadSong(descriptor) {
+            songData = data
+            lastSongDescriptor = descriptor
+            startGame()
+        }
     }
 
     func addScore(points: Int) {

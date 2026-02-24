@@ -12,11 +12,7 @@ struct MenuView: View {
             // Bokeh circles
             bokehOverlay
 
-            if state.phase == .menu {
-                startMenuContent
-            } else if state.phase == .gameOver {
-                gameOverContent
-            }
+            gameOverContent
         }
     }
 
@@ -41,53 +37,6 @@ struct MenuView: View {
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
-    }
-
-    private var startMenuContent: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            Image(systemName: "pianokeys")
-                .font(.system(size: 60))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
-
-            Text("Piano Tiles")
-                .font(.system(size: 44, weight: .heavy, design: .rounded))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
-
-            VStack(spacing: 6) {
-                Text(state.songData.composer)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.white.opacity(0.7))
-                Text(state.songData.title)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.95))
-            }
-
-            Spacer()
-
-            Text("Tap the black tiles as they fall")
-                .font(.system(size: 15))
-                .foregroundColor(.white.opacity(0.6))
-
-            Spacer()
-
-            Button(action: { state.startGame() }) {
-                Text("Play")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .frame(width: 220, height: 58)
-                    .background(
-                        Capsule().fill(Constants.buttonBlue)
-                            .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
-                    )
-            }
-
-            Spacer()
-                .frame(height: 50)
-        }
     }
 
     private var gameOverContent: some View {
@@ -153,7 +102,7 @@ struct MenuView: View {
                 }
 
                 Button(action: { state.returnToMenu() }) {
-                    Text("Menu")
+                    Text("Songs")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white.opacity(0.8))
                         .frame(width: 220, height: 44)

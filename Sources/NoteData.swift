@@ -1,5 +1,122 @@
 import Foundation
 
+// MARK: - Song Stats
+
+struct SongStats: Sendable {
+    var bestScore: Int = 0
+    var lastPlayed: Date?
+}
+
+@Observable
+@MainActor
+final class SongStatsStore {
+    private let defaults = UserDefaults.standard
+
+    func stats(for songID: String) -> SongStats {
+        let key = "songStats-\(songID)"
+        guard let dict = defaults.dictionary(forKey: key) else {
+            return SongStats()
+        }
+        let best = dict["bestScore"] as? Int ?? 0
+        let lastPlayed: Date? = (dict["lastPlayed"] as? Double).map { Date(timeIntervalSince1970: $0) }
+        return SongStats(bestScore: best, lastPlayed: lastPlayed)
+    }
+
+    func recordPlay(songID: String, score: Int) {
+        let current = stats(for: songID)
+        let key = "songStats-\(songID)"
+        let dict: [String: Any] = [
+            "bestScore": max(current.bestScore, score),
+            "lastPlayed": Date().timeIntervalSince1970,
+        ]
+        defaults.set(dict, forKey: key)
+    }
+}
+
+// MARK: - Song Descriptor & Catalog
+
+struct SongDescriptor: Identifiable, Sendable {
+    let id: String
+    let title: String
+    let composer: String
+    let source: SongSource
+
+    enum SongSource: Sendable {
+        case builtin(@Sendable () -> SongData)
+        case midi(resource: String, title: String, composer: String)
+    }
+}
+
+enum SongCatalog {
+    static let songs: [SongDescriptor] = {
+        var list: [SongDescriptor] = [
+            SongDescriptor(
+                id: "chopin-nocturne",
+                title: "Nocturne Op. 9 No. 2",
+                composer: "Chopin",
+                source: .builtin(ChopinNocturne.createSongData)
+            )
+        ]
+
+        // Known MIDI file metadata
+        let midiMeta: [(file: String, title: String, composer: String)] = [
+            ("fur-elise", "Fur Elise", "Beethoven"),
+            ("canon-in-d", "Canon in D", "Pachelbel"),
+            ("moonlight-sonata", "Moonlight Sonata", "Beethoven"),
+            ("alla-turca", "Turkish March", "Mozart"),
+            ("river-flows-in-you", "River Flows in You", "Yiruma"),
+            ("tum-hi-ho", "Tum Hi Ho", "Arijit Singh"),
+        ]
+
+        let knownFiles = Set(midiMeta.map(\.file))
+
+        // Add known MIDI files in order
+        for meta in midiMeta {
+            if Bundle.main.url(forResource: meta.file, withExtension: "mid") != nil {
+                list.append(SongDescriptor(
+                    id: "midi-\(meta.file)",
+                    title: meta.title,
+                    composer: meta.composer,
+                    source: .midi(resource: meta.file, title: meta.title, composer: meta.composer)
+                ))
+            }
+        }
+
+        // Auto-discover any additional bundled .mid files
+        if let urls = Bundle.main.urls(forResourcesWithExtension: "mid", subdirectory: nil) {
+            for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+                let name = url.deletingPathExtension().lastPathComponent
+                guard !knownFiles.contains(name) else { continue }
+                let displayTitle = name
+                    .replacingOccurrences(of: "-", with: " ")
+                    .replacingOccurrences(of: "_", with: " ")
+                    .capitalized
+                list.append(SongDescriptor(
+                    id: "midi-\(name)",
+                    title: displayTitle,
+                    composer: "Unknown",
+                    source: .midi(resource: name, title: displayTitle, composer: "Unknown")
+                ))
+            }
+        }
+
+        return list
+    }()
+
+    static func loadSong(_ descriptor: SongDescriptor) -> SongData? {
+        switch descriptor.source {
+        case .builtin(let factory):
+            return factory()
+        case .midi(let resource, let title, let composer):
+            guard let url = Bundle.main.url(forResource: resource, withExtension: "mid"),
+                  let data = try? Data(contentsOf: url) else { return nil }
+            return try? MIDIParser.parse(data: data, title: title, composer: composer)
+        }
+    }
+}
+
+// MARK: - Note & Song Data
+
 struct NoteEvent: Sendable {
     let midiNote: UInt8
     let startBeat: Double
