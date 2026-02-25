@@ -18,12 +18,24 @@
 		A1000009 /* TouchOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000009 /* TouchOverlay.swift */; };
 		A100000A /* MIDIParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000A /* MIDIParser.swift */; };
 		A100000B /* SongPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000B /* SongPickerView.swift */; };
+		A1000012 /* LaneAssigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000012 /* LaneAssigner.swift */; };
 		A100000C /* fur-elise.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000C /* fur-elise.mid */; };
 		A100000D /* canon-in-d.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000D /* canon-in-d.mid */; };
 		A100000E /* moonlight-sonata.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000E /* moonlight-sonata.mid */; };
 		A100000F /* alla-turca.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100000F /* alla-turca.mid */; };
 		A1000010 /* river-flows-in-you.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000010 /* river-flows-in-you.mid */; };
-		A1000011 /* tum-hi-ho.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000011 /* tum-hi-ho.mid */; };
+		A1000015 /* hedwigs-theme.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000015 /* hedwigs-theme.mid */; };
+		A1000017 /* let-it-be.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000017 /* let-it-be.mid */; };
+		A1000018 /* comptine-dun-autre-ete.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000018 /* comptine-dun-autre-ete.mid */; };
+		A1000019 /* someone-like-you.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000019 /* someone-like-you.mid */; };
+		A100001B /* yesterday.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100001B /* yesterday.mid */; };
+		A100001D /* clair-de-lune.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100001D /* clair-de-lune.mid */; };
+		A100001E /* liebestraum.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100001E /* liebestraum.mid */; };
+		A100001F /* spirited-away.mid in Resources */ = {isa = PBXBuildFile; fileRef = B100001F /* spirited-away.mid */; };
+		A1000020 /* gymnopedie-no1.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000020 /* gymnopedie-no1.mid */; };
+		A1000021 /* the-entertainer.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000021 /* the-entertainer.mid */; };
+		A1000022 /* arabesque-no1.mid in Resources */ = {isa = PBXBuildFile; fileRef = B1000022 /* arabesque-no1.mid */; };
+		A1000013 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000013 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,12 +50,24 @@
 		B1000009 /* TouchOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchOverlay.swift; sourceTree = "<group>"; };
 		B100000A /* MIDIParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIParser.swift; sourceTree = "<group>"; };
 		B100000B /* SongPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongPickerView.swift; sourceTree = "<group>"; };
+		B1000012 /* LaneAssigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneAssigner.swift; sourceTree = "<group>"; };
 		B100000C /* fur-elise.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "fur-elise.mid"; sourceTree = "<group>"; };
 		B100000D /* canon-in-d.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "canon-in-d.mid"; sourceTree = "<group>"; };
 		B100000E /* moonlight-sonata.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "moonlight-sonata.mid"; sourceTree = "<group>"; };
 		B100000F /* alla-turca.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "alla-turca.mid"; sourceTree = "<group>"; };
 		B1000010 /* river-flows-in-you.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "river-flows-in-you.mid"; sourceTree = "<group>"; };
-		B1000011 /* tum-hi-ho.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "tum-hi-ho.mid"; sourceTree = "<group>"; };
+		B1000015 /* hedwigs-theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "hedwigs-theme.mid"; sourceTree = "<group>"; };
+		B1000017 /* let-it-be.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "let-it-be.mid"; sourceTree = "<group>"; };
+		B1000018 /* comptine-dun-autre-ete.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "comptine-dun-autre-ete.mid"; sourceTree = "<group>"; };
+		B1000019 /* someone-like-you.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "someone-like-you.mid"; sourceTree = "<group>"; };
+		B100001B /* yesterday.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "yesterday.mid"; sourceTree = "<group>"; };
+		B100001D /* clair-de-lune.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "clair-de-lune.mid"; sourceTree = "<group>"; };
+		B100001E /* liebestraum.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "liebestraum.mid"; sourceTree = "<group>"; };
+		B100001F /* spirited-away.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "spirited-away.mid"; sourceTree = "<group>"; };
+		B1000020 /* gymnopedie-no1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "gymnopedie-no1.mid"; sourceTree = "<group>"; };
+		B1000021 /* the-entertainer.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "the-entertainer.mid"; sourceTree = "<group>"; };
+		B1000022 /* arabesque-no1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "arabesque-no1.mid"; sourceTree = "<group>"; };
+		B1000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1000001 /* PianoTiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PianoTiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -80,6 +104,8 @@
 				B1000009 /* TouchOverlay.swift */,
 				B100000A /* MIDIParser.swift */,
 				B100000B /* SongPickerView.swift */,
+				B1000012 /* LaneAssigner.swift */,
+				B1000013 /* Assets.xcassets */,
 				E1000004 /* Resources */,
 			);
 			path = Sources;
@@ -101,7 +127,17 @@
 				B100000E /* moonlight-sonata.mid */,
 				B100000F /* alla-turca.mid */,
 				B1000010 /* river-flows-in-you.mid */,
-				B1000011 /* tum-hi-ho.mid */,
+				B1000015 /* hedwigs-theme.mid */,
+				B1000017 /* let-it-be.mid */,
+				B1000018 /* comptine-dun-autre-ete.mid */,
+				B1000019 /* someone-like-you.mid */,
+				B100001B /* yesterday.mid */,
+				B100001D /* clair-de-lune.mid */,
+				B100001E /* liebestraum.mid */,
+				B100001F /* spirited-away.mid */,
+				B1000020 /* gymnopedie-no1.mid */,
+				B1000021 /* the-entertainer.mid */,
+				B1000022 /* arabesque-no1.mid */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -164,7 +200,18 @@
 				A100000E /* moonlight-sonata.mid in Resources */,
 				A100000F /* alla-turca.mid in Resources */,
 				A1000010 /* river-flows-in-you.mid in Resources */,
-				A1000011 /* tum-hi-ho.mid in Resources */,
+				A1000015 /* hedwigs-theme.mid in Resources */,
+				A1000017 /* let-it-be.mid in Resources */,
+				A1000018 /* comptine-dun-autre-ete.mid in Resources */,
+				A1000019 /* someone-like-you.mid in Resources */,
+				A100001B /* yesterday.mid in Resources */,
+				A100001D /* clair-de-lune.mid in Resources */,
+				A100001E /* liebestraum.mid in Resources */,
+				A100001F /* spirited-away.mid in Resources */,
+				A1000020 /* gymnopedie-no1.mid in Resources */,
+				A1000021 /* the-entertainer.mid in Resources */,
+				A1000022 /* arabesque-no1.mid in Resources */,
+				A1000013 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +233,7 @@
 				A1000009 /* TouchOverlay.swift in Sources */,
 				A100000A /* MIDIParser.swift in Sources */,
 				A100000B /* SongPickerView.swift in Sources */,
+				A1000012 /* LaneAssigner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

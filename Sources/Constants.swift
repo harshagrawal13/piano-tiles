@@ -15,9 +15,11 @@ enum Constants {
 
     static let lookAheadSeconds: Double = 4.0
     static let fallSpeed: CGFloat = 280
+    static let maxFallSpeed: CGFloat = 600
     static let tileSnapGridUnitTiles: CGFloat = 1.0
-    static var tileSnapGridUnitSeconds: Double {
-        Double(tileHeight * tileSnapGridUnitTiles) / Double(fallSpeed)
+
+    static func tileSnapGridUnitSeconds(forFallSpeed speed: CGFloat) -> Double {
+        Double(tileHeight * tileSnapGridUnitTiles) / Double(speed)
     }
 
     // 3-second countdown before first tile arrives (3, 2, 1)
@@ -27,14 +29,23 @@ enum Constants {
     static let failAnimationDuration: Double = 2.0
     static let failExpandAmount: CGFloat = 15.0
 
-    // Speed increase every 15 seconds
-    static let speedIncreaseInterval: Double = 15.0
-    static let speedIncreaseStep: Double = 0.1
+    // Speed ramp: continuous (+3% every 20 tiles) + step (+20% per loop)
+    static let tileSpeedRampInterval: Int = 20
+    static let tileSpeedRampStep: Double = 0.03
+    static let loopSpeedBonus: Double = 0.20
 
     // Tile colors
     static let tileBlack = Color.black
     static let tileTapped = Color(white: 0.35)
     static let tileMissed = Color(red: 1.0, green: 0.36, blue: 0.36)  // #FF5D5D
+
+    // Hold tiles
+    static let holdBeatThreshold: Double = 1.0
+    static let holdTileMinHeight: CGFloat = 180
+    static let holdMaxPoints: Int = 5
+    static let holdMinPoints: Int = 1
+    static let tileHolding = Color(red: 0.15, green: 0.15, blue: 0.35)
+    static let tileHoldComplete = Color(red: 0.2, green: 0.7, blue: 0.3)
 
     // Score
     static let scoreText = Color.orange

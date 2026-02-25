@@ -9,7 +9,6 @@ enum GamePhase {
 enum GameOverReason {
     case missed
     case wrongLane
-    case songComplete
 }
 
 @Observable
@@ -25,7 +24,6 @@ final class GameState {
     var goodCount: Int = 0
     var okCount: Int = 0
     var gameOverReason: GameOverReason = .missed
-    var songComplete: Bool = false
 
     // Song time starts negative for the 5-second grace period
     var songElapsedTime: Double = 0
@@ -33,6 +31,9 @@ final class GameState {
     var nextNoteIndex: Int = 0
     var laneLastTargetTime: [Double] = Array(repeating: -Double.infinity, count: Constants.laneCount)
     var lastSpawnedLane: Int = -1
+    var loopCount: Int = 0
+    var loopTimeOffset: Double = 0
+    var tilesCompleted: Int = 0
 
     // Fail animation state
     var failAnimationStart: Double?
@@ -61,8 +62,9 @@ final class GameState {
 
     var currentSpeedMultiplier: Double {
         guard songElapsedTime > 0 else { return 1.0 }
-        let intervals = floor(songElapsedTime / Constants.speedIncreaseInterval)
-        return 1.0 + intervals * Constants.speedIncreaseStep
+        let tileRamp = Double(tilesCompleted / Constants.tileSpeedRampInterval) * Constants.tileSpeedRampStep
+        let loopRamp = Double(loopCount) * Constants.loopSpeedBonus
+        return 1.0 + tileRamp + loopRamp
     }
 
     func startGame() {
@@ -73,7 +75,9 @@ final class GameState {
         perfectCount = 0
         goodCount = 0
         okCount = 0
-        songComplete = false
+        loopCount = 0
+        loopTimeOffset = 0
+        tilesCompleted = 0
         songElapsedTime = -Constants.startDelay
         tiles = []
         nextNoteIndex = 0
@@ -96,17 +100,17 @@ final class GameState {
     func endGame(reason: GameOverReason) {
         guard phase == .playing else { return }
 
+        // Stop audio for any tiles still being held
+        for tile in tiles where tile.state == .holding {
+            audioEngine.stopNote(tile.noteEvent.midiNote)
+        }
+
         gameOverReason = reason
-        songComplete = reason == .songComplete
         phase = .gameOver
         if let descriptor = lastSongDescriptor {
             statsStore.recordPlay(songID: descriptor.id, score: score)
         }
-        if reason == .songComplete {
-            audioEngine.stop()
-        } else {
-            audioEngine.playFailureJingleAndStop()
-        }
+        audioEngine.playFailureJingleAndStop()
     }
 
     func returnToMenu() {
@@ -119,6 +123,10 @@ final class GameState {
             lastSongDescriptor = descriptor
             startGame()
         }
+    }
+
+    func incrementTilesCompleted() {
+        tilesCompleted += 1
     }
 
     func addScore(points: Int) {

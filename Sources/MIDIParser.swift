@@ -47,7 +47,7 @@ enum MIDIParser {
         var allNoteOns: [(channel: UInt8, note: UInt8, startTick: UInt64, endTick: UInt64)] = []
         var tempoChanges: [(tick: UInt64, microsecondsPerBeat: UInt32)] = []
 
-        for _ in 0..<trackCount {
+        for _ in 0..<Int(trackCount) {
             let trackID = try reader.readASCII(4)
             guard trackID == "MTrk" else { throw MIDIParserError.invalidTrackHeader }
 
@@ -159,61 +159,80 @@ enum MIDIParser {
             reader.offset = trackEnd
         }
 
+        // --- Filter out channel 9 (percussion) ---
+        allNoteOns.removeAll { $0.channel == 9 }
+
         guard !allNoteOns.isEmpty else {
-            return SongData(title: title, composer: composer, bpm: 120, notes: [])
+            return SongData(title: title, composer: composer, bpm: 120, notes: [], fallSpeed: Constants.fallSpeed)
         }
 
-        // --- Determine BPM ---
+        // --- Determine BPM (use tempo covering the most ticks) ---
         let bpm: Double
-        if let firstTempo = tempoChanges.first {
-            bpm = 60_000_000.0 / Double(firstTempo.microsecondsPerBeat)
-        } else {
+        if tempoChanges.isEmpty {
             bpm = 120.0
+        } else if tempoChanges.count == 1 {
+            bpm = 60_000_000.0 / Double(tempoChanges[0].microsecondsPerBeat)
+        } else {
+            let lastTick = allNoteOns.map(\.endTick).max() ?? 0
+            var maxDuration: UInt64 = 0
+            var dominantTempo = tempoChanges[0].microsecondsPerBeat
+            for i in 0..<tempoChanges.count {
+                let start = tempoChanges[i].tick
+                let end = i + 1 < tempoChanges.count ? tempoChanges[i + 1].tick : lastTick
+                let duration = end > start ? end - start : 0
+                if duration > maxDuration {
+                    maxDuration = duration
+                    dominantTempo = tempoChanges[i].microsecondsPerBeat
+                }
+            }
+            bpm = 60_000_000.0 / Double(dominantTempo)
         }
 
-        // --- Convert ticks to beats and assign lanes ---
-        let midiNotes = allNoteOns.map(\.note)
-        let minNote = midiNotes.min()!
-        let maxNote = midiNotes.max()!
-        let noteRange = Double(maxNote - minNote)
-
+        // --- Convert ticks to beats ---
         // Sort by start tick, then by note
         let sorted = allNoteOns.sorted {
             if $0.startTick != $1.startTick { return $0.startTick < $1.startTick }
-            return $0.note < $1.note
+            return $0.note > $1.note
         }
 
         var notes: [NoteEvent] = []
-        var lastEndBeat = Array(repeating: -Double.infinity, count: 4)
+        var lastStartBeat = -Double.infinity
 
         for raw in sorted {
             let startBeat = Double(raw.startTick) / ppqn
             let durationBeats = max(Double(raw.endTick - raw.startTick) / ppqn, 0.1)
 
-            // Dynamic lane assignment: divide note range into 4 buckets
-            let lane: Int
-            if noteRange < 1 {
-                lane = 1
-            } else {
-                let normalized = Double(raw.note - minNote) / noteRange
-                lane = min(Int(normalized * 4.0), 3)
+            // Deduplication: skip only truly simultaneous notes (chords)
+            if startBeat < lastStartBeat + 0.02 {
+                continue
             }
 
-            // Deduplication: skip overlapping notes in the same lane
-            if startBeat < lastEndBeat[lane] + 0.05 {
-                continue
+            // Truncate previous note's duration if it overlaps with this note
+            if let last = notes.last, last.startBeat + last.durationBeats > startBeat {
+                let truncated = max(startBeat - last.startBeat, 0.1)
+                notes[notes.count - 1] = NoteEvent(
+                    midiNote: last.midiNote,
+                    startBeat: last.startBeat,
+                    durationBeats: truncated,
+                    lane: 0
+                )
             }
 
             notes.append(NoteEvent(
                 midiNote: raw.note,
                 startBeat: startBeat,
                 durationBeats: durationBeats,
-                lane: lane
+                lane: 0
             ))
-            lastEndBeat[lane] = startBeat + durationBeats
+            lastStartBeat = startBeat
         }
 
-        return SongData(title: title, composer: composer, bpm: bpm, notes: notes)
+        // Gameplay-driven lane assignment
+        notes = LaneAssigner.assignLanes(to: notes)
+        notes = LaneAssigner.resolveHoldConflicts(notes, bpm: bpm)
+
+        let speed = SongData.adaptiveFallSpeed(notes: notes, bpm: bpm)
+        return SongData(title: title, composer: composer, bpm: bpm, notes: notes, fallSpeed: speed)
     }
 }
 

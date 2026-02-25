@@ -43,30 +43,18 @@ struct MenuView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            if state.songComplete {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.yellow)
-                    .shadow(color: .yellow.opacity(0.4), radius: 10)
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 50))
+                .foregroundColor(.white.opacity(0.9))
 
-                Text("Song Complete!")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
-            } else {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.white.opacity(0.9))
+            Text("Game Over")
+                .font(.system(size: 34, weight: .heavy, design: .rounded))
+                .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
 
-                Text("Game Over")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
-
-                Text(state.gameOverReason == .wrongLane ? "Invalid tap!" : "Missed a tile!")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white.opacity(0.7))
-            }
+            Text(state.gameOverReason == .wrongLane ? "Invalid tap!" : "Missed a tile!")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
 
             Spacer()
 
@@ -75,6 +63,8 @@ struct MenuView: View {
                 statRow(label: "Score", value: "\(state.score)")
                 Divider().background(.white.opacity(0.2))
                 statRow(label: "Max Combo", value: "\(state.maxCombo)x")
+                Divider().background(.white.opacity(0.2))
+                statRow(label: "Loops", value: "\(state.loopCount)")
                 Divider().background(.white.opacity(0.2))
                 statRow(label: "Perfect", value: "\(state.perfectCount)")
                 statRow(label: "Good", value: "\(state.goodCount)")

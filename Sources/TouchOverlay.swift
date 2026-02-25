@@ -3,8 +3,8 @@ import UIKit
 
 struct TouchOverlayView: UIViewRepresentable {
     let laneCount: Int
-    let onTouchDown: @MainActor (Int, CGFloat) -> Void
-    let onTouchUp: @MainActor (Int) -> Void
+    let onTouchDown: @MainActor (Int, CGFloat, ObjectIdentifier) -> Void
+    let onTouchUp: @MainActor (Int, ObjectIdentifier) -> Void
 
     func makeUIView(context: Context) -> TouchCaptureView {
         let view = TouchCaptureView()
@@ -27,8 +27,8 @@ struct TouchOverlayView: UIViewRepresentable {
 // UIView is @MainActor, so all touch methods run on main actor — no Task wrapper needed
 final class TouchCaptureView: UIView {
     var laneCount: Int = 4
-    var onTouchDown: (@MainActor (Int, CGFloat) -> Void)?
-    var onTouchUp: (@MainActor (Int) -> Void)?
+    var onTouchDown: (@MainActor (Int, CGFloat, ObjectIdentifier) -> Void)?
+    var onTouchUp: (@MainActor (Int, ObjectIdentifier) -> Void)?
 
     private var touchLanes: [ObjectIdentifier: Int] = [:]
 
@@ -41,8 +41,9 @@ final class TouchCaptureView: UIView {
         for touch in touches {
             let point = touch.location(in: self)
             let lane = laneFor(point)
-            touchLanes[ObjectIdentifier(touch)] = lane
-            onTouchDown?(lane, point.y)
+            let touchID = ObjectIdentifier(touch)
+            touchLanes[touchID] = lane
+            onTouchDown?(lane, point.y, touchID)
         }
     }
 
@@ -50,7 +51,7 @@ final class TouchCaptureView: UIView {
         for touch in touches {
             let id = ObjectIdentifier(touch)
             if let lane = touchLanes.removeValue(forKey: id) {
-                onTouchUp?(lane)
+                onTouchUp?(lane, id)
             }
         }
     }
@@ -59,7 +60,7 @@ final class TouchCaptureView: UIView {
         for touch in touches {
             let id = ObjectIdentifier(touch)
             if let lane = touchLanes.removeValue(forKey: id) {
-                onTouchUp?(lane)
+                onTouchUp?(lane, id)
             }
         }
     }

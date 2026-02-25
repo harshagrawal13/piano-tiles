@@ -58,14 +58,24 @@ enum SongCatalog {
             )
         ]
 
-        // Known MIDI file metadata
+        // Known MIDI file metadata (all piano-exclusive)
         let midiMeta: [(file: String, title: String, composer: String)] = [
             ("fur-elise", "Fur Elise", "Beethoven"),
-            ("canon-in-d", "Canon in D", "Pachelbel"),
             ("moonlight-sonata", "Moonlight Sonata", "Beethoven"),
             ("alla-turca", "Turkish March", "Mozart"),
             ("river-flows-in-you", "River Flows in You", "Yiruma"),
-            ("tum-hi-ho", "Tum Hi Ho", "Arijit Singh"),
+            ("hedwigs-theme", "Hedwig's Theme", "John Williams"),
+            ("comptine-dun-autre-ete", "Comptine d'un autre été", "Yann Tiersen"),
+            ("let-it-be", "Let It Be", "The Beatles"),
+            ("yesterday", "Yesterday", "The Beatles"),
+            ("someone-like-you", "Someone Like You", "Adele"),
+            ("canon-in-d", "Canon in D", "Pachelbel"),
+            ("clair-de-lune", "Clair de Lune", "Debussy"),
+            ("liebestraum", "Liebestraum No. 3", "Franz Liszt"),
+            ("spirited-away", "Inochi no Namae", "Joe Hisaishi"),
+            ("gymnopedie-no1", "Gymnopédie No. 1", "Erik Satie"),
+            ("the-entertainer", "The Entertainer", "Scott Joplin"),
+            ("arabesque-no1", "Arabesque No. 1", "Debussy"),
         ]
 
         let knownFiles = Set(midiMeta.map(\.file))
@@ -129,10 +139,39 @@ struct SongData: Sendable {
     let composer: String
     let bpm: Double
     let notes: [NoteEvent]
+    let fallSpeed: CGFloat
+
+    var tileSnapGridUnitSeconds: Double {
+        Constants.tileSnapGridUnitSeconds(forFallSpeed: fallSpeed)
+    }
 
     var totalDuration: Double {
         guard let last = notes.last else { return 0 }
         return (last.startBeat + last.durationBeats) * 60.0 / bpm
+    }
+
+    /// Compute an adaptive fall speed so tiles arrive at the song's natural tempo.
+    /// Looks at the 10th-percentile gap between consecutive notes to avoid
+    /// grace-note outliers, then clamps to [Constants.fallSpeed, Constants.maxFallSpeed].
+    static func adaptiveFallSpeed(notes: [NoteEvent], bpm: Double) -> CGFloat {
+        guard notes.count >= 2 else { return Constants.fallSpeed }
+
+        var gaps: [Double] = []
+        for i in 1..<notes.count {
+            let gap = notes[i].startBeat - notes[i - 1].startBeat
+            if gap > 0 { gaps.append(gap) }
+        }
+        guard !gaps.isEmpty else { return Constants.fallSpeed }
+
+        gaps.sort()
+        let p10Index = max(0, gaps.count / 10)
+        let p10Gap = gaps[p10Index]
+
+        let gapSeconds = p10Gap * 60.0 / bpm
+        guard gapSeconds > 0 else { return Constants.fallSpeed }
+
+        let speed = Constants.tileHeight / CGFloat(gapSeconds)
+        return min(max(speed, Constants.fallSpeed), Constants.maxFallSpeed)
     }
 }
 
@@ -243,31 +282,25 @@ enum ChopinNocturne {
             (70, 95.0, 1.0),   // Bb4 (final)
         ]
 
-        let notes = rawNotes.map { raw in
+        var notes = rawNotes.map { raw in
             NoteEvent(
                 midiNote: raw.midi,
                 startBeat: raw.start,
                 durationBeats: raw.dur,
-                lane: assignLane(midiNote: raw.midi)
+                lane: 0
             )
         }
 
+        notes = LaneAssigner.assignLanes(to: notes)
+        notes = LaneAssigner.resolveHoldConflicts(notes, bpm: bpm)
+
+        let speed = SongData.adaptiveFallSpeed(notes: notes, bpm: bpm)
         return SongData(
             title: "Nocturne Op. 9 No. 2",
             composer: "Chopin",
             bpm: bpm,
-            notes: notes
+            notes: notes,
+            fallSpeed: speed
         )
-    }
-
-    private static func assignLane(midiNote: UInt8) -> Int {
-        // Range: ~63 (Eb4) to ~82 (Bb5)
-        // Split into 4 lanes by pitch range
-        switch midiNote {
-        case 0...65:    return 0  // Low: Eb4, F4
-        case 66...70:   return 1  // Mid-low: G4, Ab4, Bb4
-        case 71...75:   return 2  // Mid-high: C5, D5, Eb5
-        default:        return 3  // High: F5, G5, Bb5
-        }
     }
 }

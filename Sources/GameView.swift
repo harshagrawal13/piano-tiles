@@ -3,6 +3,7 @@ import SwiftUI
 struct GameView: View {
     @Bindable var state: GameState
     @State private var lastUpdateTime: Date?
+    @State private var lastCountdownValue: Int = 0
 
     var body: some View {
         GeometryReader { geo in
@@ -18,11 +19,11 @@ struct GameView: View {
 
                 TouchOverlayView(
                     laneCount: Constants.laneCount,
-                    onTouchDown: { lane, touchY in
-                        TileEngine.handleTouchDown(lane: lane, touchY: touchY, state: state)
+                    onTouchDown: { lane, touchY, touchID in
+                        TileEngine.handleTouchDown(lane: lane, touchY: touchY, touchID: touchID, state: state)
                     },
-                    onTouchUp: { lane in
-                        TileEngine.handleTouchUp(lane: lane, state: state)
+                    onTouchUp: { lane, touchID in
+                        TileEngine.handleTouchUp(lane: lane, touchID: touchID, state: state)
                     }
                 )
             }
@@ -64,6 +65,13 @@ struct GameView: View {
         // Apply speed multiplier after countdown
         if state.isInCountdown {
             state.songElapsedTime += clampedDt
+            let newCountdown = state.countdownRemaining
+            if newCountdown != lastCountdownValue {
+                lastCountdownValue = newCountdown
+                if newCountdown > 0 {
+                    state.audioEngine.playTick()
+                }
+            }
         } else {
             state.songElapsedTime += clampedDt * state.currentSpeedMultiplier
         }
@@ -71,7 +79,7 @@ struct GameView: View {
         if !state.isInCountdown {
             TileEngine.spawnUpcomingTiles(state: state)
             TileEngine.updateTiles(state: state)
-            TileEngine.checkSongComplete(state: state)
+            TileEngine.checkAndLoopSong(state: state)
         }
     }
 
@@ -155,7 +163,25 @@ struct GameView: View {
 
             switch tile.state {
             case .falling:
-                context.fill(Path(tileRect), with: .color(Constants.tileBlack))
+                if tile.isHold {
+                    // Hold tile: rounded black rect with vertical dash indicator
+                    let roundedPath = Path(roundedRect: tileRect, cornerRadius: 8)
+                    context.fill(roundedPath, with: .color(Constants.tileBlack))
+
+                    // Vertical dash indicator
+                    let dashWidth: CGFloat = 2
+                    let dashHeight: CGFloat = 8
+                    let gap: CGFloat = 6
+                    let centerX = tileRect.midX - dashWidth / 2
+                    var dy = topY + 20
+                    while dy + dashHeight < tile.yPosition - 20 {
+                        let dashRect = CGRect(x: centerX, y: dy, width: dashWidth, height: dashHeight)
+                        context.fill(Path(dashRect), with: .color(.white.opacity(0.3)))
+                        dy += dashHeight + gap
+                    }
+                } else {
+                    context.fill(Path(tileRect), with: .color(Constants.tileBlack))
+                }
 
             case .tapped:
                 context.fill(Path(tileRect),
@@ -174,6 +200,34 @@ struct GameView: View {
                             lineWidth: Constants.tapOutlineWidth
                         )
                     }
+                }
+
+            case .holding:
+                // Dark blue rect with pulsing white border
+                let roundedPath = Path(roundedRect: tileRect, cornerRadius: 8)
+                context.fill(roundedPath, with: .color(Constants.tileHolding))
+
+                if let tappedAt = tile.tappedTime {
+                    let elapsed = state.songElapsedTime - tappedAt
+                    let pulse = 0.4 + 0.6 * (0.5 + 0.5 * sin(elapsed * 8))
+                    let outlinePath = Path(
+                        roundedRect: tileRect.insetBy(dx: 1.5, dy: 1.5),
+                        cornerRadius: 8
+                    )
+                    context.stroke(
+                        outlinePath,
+                        with: .color(.white.opacity(pulse)),
+                        lineWidth: 2.5
+                    )
+                }
+
+            case .holdComplete:
+                // Green-tinted fading rect
+                if let tappedAt = tile.tappedTime {
+                    let elapsed = state.songElapsedTime - tappedAt
+                    let fadeLife = max(0.0, 1.0 - elapsed / 0.5)
+                    let roundedPath = Path(roundedRect: tileRect, cornerRadius: 8)
+                    context.fill(roundedPath, with: .color(Constants.tileHoldComplete.opacity(fadeLife * 0.6)))
                 }
 
             case .missed:
@@ -200,7 +254,7 @@ struct GameView: View {
 
     private func drawHUD(context: GraphicsContext, size: CGSize) {
         // Large orange score at top center with drop shadow
-        let scoreY = size.height * 0.08
+        let scoreY = size.height * 0.12
 
         // Shadow
         context.draw(
@@ -225,6 +279,16 @@ struct GameView: View {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.white.opacity(0.85)),
                 at: CGPoint(x: size.width / 2, y: scoreY + 32)
+            )
+        }
+
+        // Loop count
+        if state.loopCount > 0 {
+            context.draw(
+                Text("Loop \(state.loopCount)")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white),
+                at: CGPoint(x: size.width / 2, y: scoreY + 50)
             )
         }
     }

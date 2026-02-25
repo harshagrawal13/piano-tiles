@@ -191,6 +191,15 @@ final class AudioEngine: @unchecked Sendable {
         isRunning = false
     }
 
+    func playTick() {
+        guard isRunning else { return }
+        // Short, bright woodblock-like tick using a high note with quick release
+        playNote(90, velocity: 80)  // F#6
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self] in
+            self?.stopNote(90)
+        }
+    }
+
     func playBuzzer() {
         guard isRunning else { return }
         playNote(40, velocity: 127)  // E2
