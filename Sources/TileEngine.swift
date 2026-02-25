@@ -134,7 +134,7 @@ enum TileEngine {
     }
 
     static func handleTouchDown(lane: Int, touchY: CGFloat, touchID: ObjectIdentifier, state: GameState) {
-        guard state.phase == .playing, !state.isInCountdown, !state.isFailing else { return }
+        guard state.phase == .playing, !state.isInCountdown, !state.isFailing, !state.isPaused else { return }
 
         // Must tap tiles in sequential order — find the first falling tile
         guard let nextIdx = state.tiles.firstIndex(where: { $0.state == .falling }) else {

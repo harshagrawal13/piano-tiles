@@ -283,6 +283,26 @@ final class AudioEngine: @unchecked Sendable {
         )
     }
 
+    func stopAllNotes() {
+        guard isRunning else { return }
+
+        os_unfair_lock_lock(lockStorage)
+        defer { os_unfair_lock_unlock(lockStorage) }
+
+        for i in 0..<voiceCount {
+            guard voiceStorage[i].active, voiceStorage[i].releaseStart == 0 else { continue }
+            voiceStorage[i].releaseStart = voiceStorage[i].envelopeTime
+            let t = voiceStorage[i].envelopeTime
+            if t < attackDuration {
+                voiceStorage[i].releaseAmplitude = Float(t / attackDuration)
+            } else {
+                let decayElapsed = t - attackDuration
+                let decayed = (1.0 - sustainLevel) * exp(-decayElapsed / decayTau) + sustainLevel
+                voiceStorage[i].releaseAmplitude = Float(decayed)
+            }
+        }
+    }
+
     func stopNote(_ note: UInt8) {
         guard isRunning else { return }
 

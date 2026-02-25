@@ -41,6 +41,7 @@ final class GameState {
     var failReason: GameOverReason = .missed
     var isFailing: Bool { failAnimationStart != nil }
 
+    var isPaused: Bool = false
     var screenSize: CGSize = CGSize(width: 390, height: 844)
 
     var songData: SongData = ChopinNocturne.createSongData()
@@ -86,6 +87,7 @@ final class GameState {
         failAnimationStart = nil
         failedTileIdx = nil
         failReason = .missed
+        isPaused = false
         audioEngine.start()
     }
 
@@ -95,6 +97,30 @@ final class GameState {
         failedTileIdx = tileIdx
         failReason = reason
         audioEngine.playBuzzer()
+    }
+
+    func continueAfterFail() {
+        if let idx = failedTileIdx, idx < tiles.count {
+            tiles[idx].state = .tapped
+            tiles[idx].tappedTime = songElapsedTime
+        }
+        combo = 0
+        failAnimationStart = nil
+        failedTileIdx = nil
+        failReason = .missed
+    }
+
+    func pause() {
+        guard phase == .playing, !isPaused else { return }
+        isPaused = true
+        audioEngine.stopAllNotes()
+    }
+
+    func resume() {
+        isPaused = false
+        for tile in tiles where tile.state == .holding {
+            audioEngine.playNote(tile.noteEvent.midiNote, velocity: 110)
+        }
     }
 
     func endGame(reason: GameOverReason) {

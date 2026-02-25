@@ -1,9 +1,13 @@
 import SwiftUI
 
 struct GameView: View {
+    private enum OverlayMode {
+        case none, paused, continuePrompt
+    }
     @Bindable var state: GameState
     @State private var lastUpdateTime: Date?
     @State private var lastCountdownValue: Int = 0
+    @State private var overlayMode: OverlayMode = .none
 
     var body: some View {
         GeometryReader { geo in
@@ -26,9 +30,40 @@ struct GameView: View {
                         TileEngine.handleTouchUp(lane: lane, touchID: touchID, state: state)
                     }
                 )
+
+                // Pause button (top-left, below Dynamic Island)
+                if overlayMode == .none && !state.isFailing && !state.isInCountdown {
+                    VStack {
+                        HStack {
+                            Button(action: {
+                                state.pause()
+                                overlayMode = .paused
+                            }) {
+                                Image(systemName: "pause.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 36, height: 36)
+                                    .background(Circle().fill(.black.opacity(0.3)))
+                            }
+                            .padding(.leading, 16)
+                            .padding(.top, 60)
+                            Spacer()
+                        }
+                        Spacer()
+                    }
+                }
+
+                // Overlay dim + content
+                if overlayMode != .none {
+                    Color.black.opacity(0.45)
+                        .allowsHitTesting(true)
+
+                    overlayContent
+                }
             }
             .onAppear {
                 state.screenSize = geo.size
+                overlayMode = .none
             }
             .onChange(of: geo.size) { _, newSize in
                 state.screenSize = newSize
@@ -37,8 +72,94 @@ struct GameView: View {
         .ignoresSafeArea()
     }
 
+    @ViewBuilder
+    private var overlayContent: some View {
+        switch overlayMode {
+        case .none:
+            EmptyView()
+        case .paused:
+            VStack(spacing: 20) {
+                Text("Paused")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.bottom, 8)
+
+                Button(action: {
+                    overlayMode = .none
+                    state.resume()
+                }) {
+                    Text("Resume")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(width: 220, height: 52)
+                        .background(
+                            Capsule().fill(Constants.buttonBlue)
+                                .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
+                        )
+                }
+
+                Button(action: {
+                    overlayMode = .none
+                    state.returnToMenu()
+                }) {
+                    Text("Back to Menu")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                        .frame(width: 220, height: 44)
+                        .background(
+                            Capsule().stroke(.white.opacity(0.4), lineWidth: 1.5)
+                        )
+                }
+            }
+        case .continuePrompt:
+            VStack(spacing: 16) {
+                Text("Wrong Tile!")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+
+                Text("Combo reset to 0")
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.bottom, 4)
+
+                Button(action: {
+                    overlayMode = .none
+                    state.continueAfterFail()
+                }) {
+                    Text("Continue")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(width: 220, height: 52)
+                        .background(
+                            Capsule().fill(Constants.buttonBlue)
+                                .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
+                        )
+                }
+
+                Button(action: {
+                    overlayMode = .none
+                    state.endGame(reason: .wrongLane)
+                }) {
+                    Text("Give Up")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                        .frame(width: 220, height: 44)
+                        .background(
+                            Capsule().stroke(.white.opacity(0.4), lineWidth: 1.5)
+                        )
+                }
+            }
+        }
+    }
+
     private func updateGameLoop(now: Date) {
         guard state.phase == .playing else {
+            lastUpdateTime = nil
+            return
+        }
+
+        // Freeze the game loop when paused or showing an overlay
+        if state.isPaused || overlayMode != .none {
             lastUpdateTime = nil
             return
         }
@@ -57,7 +178,11 @@ struct GameView: View {
         if let failStart = state.failAnimationStart {
             state.songElapsedTime += clampedDt
             if state.songElapsedTime - failStart >= Constants.failAnimationDuration {
-                state.endGame(reason: state.failReason)
+                if state.failReason == .wrongLane {
+                    overlayMode = .continuePrompt
+                } else {
+                    state.endGame(reason: state.failReason)
+                }
             }
             return
         }
